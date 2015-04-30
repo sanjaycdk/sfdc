@@ -1,0 +1,77 @@
+<apex:page controller="sample1" id="Page" tabstyle="Contact">
+ <apex:includeScript value="{!URLFOR($Resource.jquery, 'external/jquery/jquery.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.jquery, 'jquery-ui.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.jquery, 'jquery-ui.css')}"/>
+  <script type="text/javascript"> 
+  function a(value)
+  {
+  alert(value);
+  }
+  
+  function openLookup(baseURL, width, modified, searchParam){
+  alert('open lookup clicked');
+    var originalbaseURL = baseURL;
+    var originalwidth = width;
+    var originalmodified = modified;
+    var originalsearchParam = searchParam;
+    alert(baseURL);
+    var lookupType = baseURL.substr(baseURL.length-3, 3);
+    if (modified == '1') baseURL = baseURL + searchParam;
+    
+    var isCustomLookup = false;
+
+    // Following "003" is the lookup type for Account object so change this as per your standard or custom object
+    if(lookupType == "003"){
+          alert('inside');
+      var urlArr = baseURL.split("&");
+      var txtId = '';
+      if(urlArr.length > 2) {
+        urlArr = urlArr[1].split('=');
+        txtId = urlArr[1];
+      }
+      alert(txtId);
+      // Following is the url of Custom Lookup page. You need to change that accordingly
+      baseURL = "/apex/sample2?txt=" + txtId;
+      
+      // Following is the id of apex:form control "myForm". You need to change that accordingly
+      baseURL = baseURL + "&frm=" + escapeUTF("{!$Component.myForm}");
+      if (modified == '1') {
+        baseURL = baseURL + "&lksearch=" + searchParam;
+      }
+      
+      // Following is the ID of inputField that is the lookup to be customized as custom lookup
+      if(txtId.indexOf('Account') > -1 ){
+        isCustomLookup = true;
+      }
+    }
+    
+    
+    if(isCustomLookup == true){
+      openPopup(baseURL, "lookup", 350, 480, "width="+width+",height=480,toolbar=no,status=no,directories=no,menubar=no,resizable=yes,scrollable=no", true);
+    }
+    else {
+      if (modified == '1') originalbaseURL = originalbaseURL + originalsearchParam;
+      openPopup(originalbaseURL, "lookup", 350, 480, "width="+originalwidth+",height=480,toolbar=no,status=no,directories=no,menubar=no,resizable=yes,scrollable=no", true);
+    } 
+  }
+</script>
+ 
+<apex:sectionHeader title="Demo"  subtitle="Custom Lookup" />
+ 
+    <apex:form id="myForm">  
+        <apex:PageBlock id="PageBlock">     
+            <apex:pageBlockSection columns="1" title="Custom Lookup">
+        <apex:inputField id="Account" value="{!opp.Contact__c}"  >
+        <apex:actionSupport event="onchange" action="{!addEmailId}" reRender="emailId"/>
+         </apex:inputField>
+            </apex:pageBlockSection>
+            
+        </apex:PageBlock>
+        
+    </apex:form>
+    <apex:outputPanel id="emailId">
+    <apex:repeat value="{!Emails}" var="a" >
+        <apex:outputText value="{!a}"/>
+        </apex:repeat>
+       </apex:outputPanel>
+</apex:page>
